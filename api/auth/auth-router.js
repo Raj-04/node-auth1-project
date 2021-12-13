@@ -31,7 +31,19 @@ const {
     "message": "Password must be longer than 3 chars"
   }
  */
+router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next) => {
+  const { username, password } = req.body
+  const hash = bcrypt.hashSync(password, 8)
 
+  User.add({
+    username,
+    password: hash
+  })
+  .then(saved => {
+    res.status(201).json(saved)
+  })
+  .catch(next)
+})
 
 /**
   2 [POST] /api/auth/login { "username": "sue", "password": "1234" }
