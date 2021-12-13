@@ -17,7 +17,30 @@ const authRouter = require('./auth/auth-router')
   or you can use a session store like `connect-session-knex`.
  */
 
+const session = require('express-session')
+const store = require('connect-session-knex')(session)
+
 const server = express();
+
+server.use(session({
+  name: 'chocolatechip',
+  secret: 'secret',
+  cookie: {
+    maxAge: 1 * 24 * 60 * 60 * 1000,
+    secure: false, // in dev, this should be true
+  },
+  httpOnly: true,
+  resave: false,
+  saveUninitialized: false,
+
+  store: new store({
+    knex: require('../data/db-config'),
+    tablename: 'sessions',
+    sidfieldname: 'sid',
+    createtable: true,
+    clearInterval: 1000 * 60 * 60,
+  }),
+}))
 
 server.use(helmet());
 server.use(express.json());
